@@ -1,17 +1,22 @@
+// pageWalk.c: A primitive page walking Linux Kernel Module
+// Shilpi Goel <shigoel@gmail.com>
+
+// -------------------------------------------------------------------------------
+
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 
-// We deal with Kernel Virtual Addresses here. See mm.txt for details.
+// We deal with Kernel Virtual Addresses here.
+// See https://www.kernel.org/doc/Documentation/x86/x86_64/mm.txt
+// for details.
 #define _direct_map(x) (x | PAGE_OFFSET);
 
 u64 part_select (u64 x, u32 low, u32 high) {
 
   u64 width, val, mask;
   width = high - low + 1;
-  // printk(KERN_INFO "\npart_select width: %llu\n", width);
   mask = (1UL << width) - 1;
-  // printk(KERN_INFO "\npart_select mask: %llx\n", mask);
   val =  mask & (x >> low);
   return (val);
 
@@ -21,7 +26,6 @@ u64 part_install (u64 val, u64 x, u32 low, u32 high) {
 
   u64 width, mask, ret;
   width = high - low + 1;
-  // printk(KERN_INFO "\npart_install width: %llu\n", width);
   mask = (1UL << width) - 1;
   ret = (((~(mask << low)) & x) | (val << low));
   return (ret);
@@ -38,11 +42,6 @@ u64 part_install (u64 val, u64 x, u32 low, u32 high) {
 #define PAGE_SHIFT_4K	PT_SHIFT
 #define PAGE_SIZE_4K	(_AC(1,UL) << PAGE_SHIFT_4K)
 #define PAGE_MASK_4K	(~(PAGE_SIZE_4K-1))
-
-// Physical Address Width: 46
-// TODO: Will plugging 52 instead of 46 here be okay too?
-#define __P_MASK    ((1ULL << 46) - 1)
-#define P_PAGE_MASK (((signed long)PAGE_MASK_4K) & __P_MASK)
 
 u64 pml4e_paddr (u64 cr3, u64 vaddr) {
   // Input: Contents of the CR3 register and the virtual address
@@ -250,4 +249,4 @@ module_init(pagewalk);
 module_exit(pagewalk_exit);
 
 MODULE_AUTHOR("Shilpi Goel");
-MODULE_LICENSE("GPL");
+MODULE_LICENSE("Dual MIT/GPL");

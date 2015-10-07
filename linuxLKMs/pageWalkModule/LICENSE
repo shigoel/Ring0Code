@@ -1,0 +1,14 @@
+pageWalk.c --- A primitive page walking Linux Kernel Module
+Author: Shilpi Goel <shigoel@gmail.com>
+
+----------------------------------------------------------------------
+
+The pageWalk Linux Loadable Kernel Module (LKM) is dual-licensed: MIT
+and GPL (see files MIT.txt and GPL.txt respectively). The module
+itself is MIT-licensed, but when running with Linux, the GPL license
+kicks in.
+
+The file include/linux/module.h in the Linux sources explains various
+kinds of options available for licensing Linux LKMs. Also see
+http://www.tldp.org/HOWTO/Module-HOWTO/copyright.html for a good
+discussion on this topic.
