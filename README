@@ -1,0 +1,14 @@
+Ring0Code
+Author: Shilpi Goel <shigoel@gmail.com>
+
+----------------------------------------------------------------------
+
+This repository contains some very simple kernel sub-routines/programs
+that will be used to exercise the ACL2-based x86isa reasoning
+framework (see books/projects/x86isa on https://github.com/acl2/acl2).
+
+By design, these system programs are much simpler (and less efficient,
+less complete, etc.) than the in-use kernel code. Using these programs
+as verification targets in the "System-level Mode" of the x86isa
+framework will give an idea of what to expect when verifying in-use
+kernel code later.
