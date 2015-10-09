@@ -1,6 +1,31 @@
 // pageWalk.c: A primitive page walking Linux Kernel Module
 // Shilpi Goel <shigoel@gmail.com>
 
+/*
+
+In Linux, the macro __pa can be used to convert a physical address to
+a virtual address. For converting a physical address to a virtual
+address, the macro __va can be used. These macros are defined in
+arch/ia64/include/asm/page.h as follows:
+
+# define __pa(x)                ((x) - PAGE_OFFSET)
+# define __va(x)                ((x) + PAGE_OFFSET)
+
+This fast "translation" is possible because of the way Linux's virtual
+memory map with 4-level tables is set up. See
+https://www.kernel.org/doc/Documentation/x86/x86_64/mm.txt for more
+details.
+
+In this dumb little module, I go about a page walk the hard way, as
+described in Intel manuals --- by following pointers in the paging
+data structures that reside in the kernel space. Note that I use the
+words "physical address" when I really mean "kernel virtual
+address". Since all the kernel virtual addresses are directly mapped
+to the physical address space (physical address = __pa(kernel virtual
+address)), I feel comfortable about blurring the distinction.
+
+ */
+
 // -------------------------------------------------------------------------------
 
 #include <linux/module.h>
@@ -8,7 +33,7 @@
 #include <linux/kernel.h>
 
 // We deal with Kernel Virtual Addresses here.
-// See https://www.kernel.org/doc/Documentation/x86/x86_64/mm.txt
+//
 // for details.
 #define _direct_map(x) (x | PAGE_OFFSET);
 
@@ -45,7 +70,7 @@ u64 part_install (u64 val, u64 x, u32 low, u32 high) {
 
 u64 pml4e_paddr (u64 cr3, u64 vaddr) {
   // Input: Contents of the CR3 register and the virtual address
-  // Output: Physical address of the entry in PML4 table that corresponds to vaddr
+  // Output: "Physical" address of the entry in PML4 table that corresponds to vaddr
 
   u64 pml4_table_base_paddr;
   u64 paddr;
@@ -70,8 +95,8 @@ u64 pml4e_paddr (u64 cr3, u64 vaddr) {
 }
 
 u64 pdpte_paddr (u64 pml4e_paddr, u64 vaddr) {
-  // Input: Physical address of the PML4E and the virtual address
-  // Output: Physical address of the entry in PDPT table that corresponds to vaddr
+  // Input: "Physical" address of the PML4E and the virtual address
+  // Output: "Physical" address of the entry in PDPT table that corresponds to vaddr
 
   u64 pdpt_table_base_paddr, pml4e, paddr;
 
@@ -103,8 +128,8 @@ u64 pdpte_paddr (u64 pml4e_paddr, u64 vaddr) {
 }
 
 u64 pdte_paddr (u64 pdpte_paddr, u64 vaddr) {
-  // Input: Physical address of the PDPTE and the virtual address
-  // Output: Physical address of the entry in PDT table that corresponds to vaddr
+  // Input: "Physical" address of the PDPTE and the virtual address
+  // Output: "Physical" address of the entry in PDT table that corresponds to vaddr
 
   u64 pdt_table_base_paddr, pdpte, paddr;
 
@@ -136,8 +161,8 @@ u64 pdte_paddr (u64 pdpte_paddr, u64 vaddr) {
 }
 
 u64 pte_paddr (u64 pdte_paddr, u64 vaddr) {
-  // Input: Physical address of the PDT and the virtual address
-  // Output: Physical address of the entry in PT table that corresponds to vaddr
+  // Input: "Physical" address of the PDT and the virtual address
+  // Output: "Physical" address of the entry in PT table that corresponds to vaddr
 
   u64 pt_table_base_paddr, pdte, paddr;
 
@@ -169,8 +194,8 @@ u64 pte_paddr (u64 pdte_paddr, u64 vaddr) {
 }
 
 u64 paddr (u64 pte_addr, u64 vaddr) {
-  // Input: Physical address of the PT and the virtual address
-  // Output: Physical address of the entry in PT table that corresponds to vaddr
+  // Input: "Physical" address of the PT and the virtual address
+  // Output: "Physical" address of the entry in PT table that corresponds to vaddr
 
   u64 page_base_paddr, pte, paddr;
 
@@ -187,14 +212,14 @@ u64 paddr (u64 pte_addr, u64 vaddr) {
 
   page_base_paddr = _direct_map(part_select(pte, 12, 51) << 12);
 
-  // Physical Address corresponding to vaddr:
+  // "Physical" Address corresponding to vaddr:
   // Bits 51:12 are from the PTE.
   // Bits 11:0 are bits 11:0 of vaddr.
 
   paddr = part_install (part_select (vaddr, 0, 11),
 			page_base_paddr, 0, 11);
 
-  printk(KERN_INFO "\nPhysical Address: %llx\n", paddr);
+  printk(KERN_INFO "\n"Physical" Address: %llx\n", paddr);
   printk(KERN_INFO "\n<<<Exiting PADDR");
   return (paddr);
 
@@ -207,7 +232,7 @@ static int __init pagewalk(void) {
   /* At this point, page table for la[0], la[1] is populated (present = 1) */
   la[0] = 42; la[1] = 3;
 
-  printk(KERN_INFO "\nPageWalker module being loaded...\n");
+  printk(KERN_INFO "\npageWalk module being loaded...\n");
 
   __asm__ __volatile__
     ( // Get cr3.
@@ -232,17 +257,23 @@ static int __init pagewalk(void) {
   pa         = paddr(pte_pa, (u64)&la[0]);
   if (pa       == 0) goto out;
 
+
+  // I expect PAGE_OFFSET to be: 0xffff880000000000.
+  printk("\nPAGE_OFFSET: %llx\n", PAGE_OFFSET);
+
+  printk("\nLinear address of la[0]: %llx, la[1]: %llx\n", (u64)&la[0], (u64)&la[1]);
+  printk("\nPhysical address (which is really the kernel virtual address) pa: %llx, pa+1: %llx\n", pa, (pa+8));
   printk("\nvalue (from page walk) = %llx, value (from variable) = %llx\n",
 	 *((u64 *)pa), la[0]);
   printk("\nvalue (from page walk) = %llx, value (from variable) = %llx\n",
-	 *((u64 *)pa + 1), la[1]);
+	 *((u64 *)(pa + 8)), la[1]);
 
  out:
   return 0;
 }
 
 static void __exit pagewalk_exit(void) {
-	printk(KERN_INFO "\nPageWalker module being unloaded...\n");
+	printk(KERN_INFO "\npageWalk module being unloaded...\n");
 }
 
 module_init(pagewalk);

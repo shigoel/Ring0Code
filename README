@@ -13,4 +13,11 @@ as verification targets in the "System-level Mode" of the x86isa
 framework will give an idea of what to expect when verifying in-use
 kernel code later.
 
+If you choose to compile and execute the programs in this repository,
+please do so on a Linux distribution on a virtual machine. These
+programs could mess up your system (they contain privileged code after
+all and are written for experimentation purposes). And oh, I don't
+take any responsibility if bad things happen to your machine after you
+use these programs.
+
 ----------------------------------------------------------------------
