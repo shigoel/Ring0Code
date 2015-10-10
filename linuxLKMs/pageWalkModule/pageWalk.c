@@ -78,7 +78,7 @@ u64 pml4e_paddr (u64 cr3, u64 vaddr) {
   printk(KERN_INFO "\n>>>Inside PML4E_PADDR\n");
 
   pml4_table_base_paddr = _direct_map((cr3 >> CR3_PDB_SHIFT) << CR3_PDB_SHIFT);
-  printk(KERN_INFO "\npml4_table_base_paddr: %llx\n", pml4_table_base_paddr);
+  printk(KERN_INFO "\npml4_table_base_paddr: 0x%llx\n", pml4_table_base_paddr);
 
   // Address of PML4E:
   // Bits 51:12 are from CR3.
@@ -87,7 +87,7 @@ u64 pml4e_paddr (u64 cr3, u64 vaddr) {
   paddr = part_install (part_select (vaddr, 39, 47),
 			pml4_table_base_paddr, 3, 11);
 
-  printk(KERN_INFO "\nAddress of the PML4E: %llx\n", paddr);
+  printk(KERN_INFO "\nAddress of the PML4E: 0x%llx\n", paddr);
 
   printk(KERN_INFO "\n<<<Exiting PML4E_PADDR");
   return (paddr);
@@ -104,7 +104,7 @@ u64 pdpte_paddr (u64 pml4e_paddr, u64 vaddr) {
 
   // Read the PML4E entry from pml4e_paddr:
   pml4e = *((u64 *)pml4e_paddr);
-  printk(KERN_INFO "\nPML4E entry contents: %llx\n", pml4e);
+  printk(KERN_INFO "\nPML4E entry contents: 0x%llx\n", pml4e);
   // Return error if the PML4E has the P bit cleared.
   if ((pml4e & 1) == 0) {
     printk(KERN_INFO "Error!");
@@ -120,7 +120,7 @@ u64 pdpte_paddr (u64 pml4e_paddr, u64 vaddr) {
 
   paddr = part_install (part_select (vaddr, 30, 38),
 			pdpt_table_base_paddr, 3, 11);
-  printk(KERN_INFO "\nAddress of the PDPTE: %llx\n", paddr);
+  printk(KERN_INFO "\nAddress of the PDPTE: 0x%llx\n", paddr);
 
   printk(KERN_INFO "\n<<<Exiting PDPTE_PADDR");
   return (paddr);
@@ -137,7 +137,7 @@ u64 pdte_paddr (u64 pdpte_paddr, u64 vaddr) {
 
   // Read the PDPTE entry from pdpte_paddr:
   pdpte = *((u64 *)pdpte_paddr);
-  printk(KERN_INFO "\nPDPTE entry contents: %llx", pdpte);
+  printk(KERN_INFO "\nPDPTE entry contents: 0x%llx", pdpte);
   // Return error if the PDPTE has the P bit cleared or page size != 0.
   if (((pdpte & 1) == 0) || (part_select(pdpte, 7, 7) != 0)) {
     printk(KERN_INFO "Error!");
@@ -154,7 +154,7 @@ u64 pdte_paddr (u64 pdpte_paddr, u64 vaddr) {
   paddr = part_install (part_select (vaddr, 21, 29),
 			pdt_table_base_paddr, 3, 11);
 
-  printk(KERN_INFO "\nAddress of the PDTE: %llx\n", paddr);
+  printk(KERN_INFO "\nAddress of the PDTE: 0x%llx\n", paddr);
   printk(KERN_INFO "\n<<<Exiting PDTE_PADDR");
   return (paddr);
 
@@ -170,7 +170,7 @@ u64 pte_paddr (u64 pdte_paddr, u64 vaddr) {
 
   // Read the PDTE entry from pdte_paddr:
   pdte = *((u64 *)pdte_paddr);
-  printk(KERN_INFO "\nPDTE entry contents: %llx\n", pdte);
+  printk(KERN_INFO "\nPDTE entry contents: 0x%llx\n", pdte);
   // Return error if the PDTE has the P bit cleared or page size != 0.
   if (((pdte & 1) == 0) ||  (part_select(pdte, 7, 7) != 0)) {
     printk(KERN_INFO "Error!");
@@ -187,7 +187,7 @@ u64 pte_paddr (u64 pdte_paddr, u64 vaddr) {
   paddr = part_install (part_select (vaddr, 12, 20),
 			pt_table_base_paddr, 3, 11);
 
-  printk(KERN_INFO "\nAddress of the PTE: %llx\n", paddr);
+  printk(KERN_INFO "\nAddress of the PTE: 0x%llx\n", paddr);
   printk(KERN_INFO "\n<<<Exiting PTE_PADDR");
   return (paddr);
 
@@ -203,7 +203,7 @@ u64 paddr (u64 pte_addr, u64 vaddr) {
 
   // Read the PTE from the pte_addr:
   pte = *((u64 *)pte_addr);
-  printk(KERN_INFO "\nPTE entry contents: %llx\n", pte);
+  printk(KERN_INFO "\nPTE entry contents: 0x%llx\n", pte);
   // Return error if the PTE has the P bit cleared.
   if ((pte & 1) == 0) {
     printk(KERN_INFO "Error!");
@@ -219,7 +219,7 @@ u64 paddr (u64 pte_addr, u64 vaddr) {
   paddr = part_install (part_select (vaddr, 0, 11),
 			page_base_paddr, 0, 11);
 
-  printk(KERN_INFO "\n"Physical" Address: %llx\n", paddr);
+  printk(KERN_INFO "\n'Physical Address': 0x%llx\n", paddr);
   printk(KERN_INFO "\n<<<Exiting PADDR");
   return (paddr);
 
@@ -258,14 +258,16 @@ static int __init pagewalk(void) {
   if (pa       == 0) goto out;
 
 
-  // I expect PAGE_OFFSET to be: 0xffff880000000000.
-  printk("\nPAGE_OFFSET: %llx\n", PAGE_OFFSET);
+  if (PAGE_OFFSET == 0xffff880000000000)
+    printk("\nPAGE_OFFSET is what you expect it to be: 0x%lx\n", PAGE_OFFSET);
+  else
+    printk("\n!!! PAGE_OFFSET is NOT what you expect it to be: 0x%lx !!!\n", PAGE_OFFSET);
 
-  printk("\nLinear address of la[0]: %llx, la[1]: %llx\n", (u64)&la[0], (u64)&la[1]);
-  printk("\nPhysical address (which is really the kernel virtual address) pa: %llx, pa+1: %llx\n", pa, (pa+8));
-  printk("\nvalue (from page walk) = %llx, value (from variable) = %llx\n",
+  printk("\nLinear address of la[0]: 0x%llx, la[1]: 0x%llx\n", (u64)&la[0], (u64)&la[1]);
+  printk("\nPhysical address (which is really the kernel virtual address) pa: 0x%llx, pa+1: 0x%llx\n", pa, (pa+8));
+  printk("\nvalue (from page walk) = 0x%llx, value (from variable) = 0x%llx\n",
 	 *((u64 *)pa), la[0]);
-  printk("\nvalue (from page walk) = %llx, value (from variable) = %llx\n",
+  printk("\nvalue (from page walk) = 0x%llx, value (from variable) = 0x%llx\n",
 	 *((u64 *)(pa + 8)), la[1]);
 
  out:
