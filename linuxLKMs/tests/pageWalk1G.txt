@@ -1,0 +1,191 @@
+
+pageWalk1G.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <part_select>:
+   0:	e8 00 00 00 00       	callq  5 <part_select+0x5>
+   5:	29 f2                	sub    %esi,%edx
+   7:	b8 01 00 00 00       	mov    $0x1,%eax
+   c:	55                   	push   %rbp
+   d:	8d 4a 01             	lea    0x1(%rdx),%ecx
+  10:	48 89 e5             	mov    %rsp,%rbp
+  13:	48 d3 e0             	shl    %cl,%rax
+  16:	89 f1                	mov    %esi,%ecx
+  18:	48 83 e8 01          	sub    $0x1,%rax
+  1c:	48 d3 ef             	shr    %cl,%rdi
+  1f:	48 21 f8             	and    %rdi,%rax
+  22:	5d                   	pop    %rbp
+  23:	c3                   	retq   
+  24:	66 66 66 2e 0f 1f 84 	data32 data32 nopw %cs:0x0(%rax,%rax,1)
+  2b:	00 00 00 00 00 
+
+0000000000000030 <part_install>:
+  30:	e8 00 00 00 00       	callq  35 <part_install+0x5>
+  35:	29 d1                	sub    %edx,%ecx
+  37:	b8 01 00 00 00       	mov    $0x1,%eax
+  3c:	55                   	push   %rbp
+  3d:	83 c1 01             	add    $0x1,%ecx
+  40:	48 d3 e0             	shl    %cl,%rax
+  43:	89 d1                	mov    %edx,%ecx
+  45:	48 89 e5             	mov    %rsp,%rbp
+  48:	48 83 e8 01          	sub    $0x1,%rax
+  4c:	48 d3 e7             	shl    %cl,%rdi
+  4f:	48 d3 e0             	shl    %cl,%rax
+  52:	48 f7 d0             	not    %rax
+  55:	48 21 f0             	and    %rsi,%rax
+  58:	48 09 f8             	or     %rdi,%rax
+  5b:	5d                   	pop    %rbp
+  5c:	c3                   	retq   
+  5d:	0f 1f 00             	nopl   (%rax)
+
+0000000000000060 <pml4e_paddr>:
+  60:	e8 00 00 00 00       	callq  65 <pml4e_paddr+0x5>
+  65:	55                   	push   %rbp
+  66:	31 c0                	xor    %eax,%eax
+  68:	48 89 e5             	mov    %rsp,%rbp
+  6b:	41 54                	push   %r12
+  6d:	49 89 fc             	mov    %rdi,%r12
+  70:	49 81 e4 00 f0 ff ff 	and    $0xfffffffffffff000,%r12
+  77:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+  7e:	53                   	push   %rbx
+  7f:	48 89 f3             	mov    %rsi,%rbx
+  82:	48 c1 eb 24          	shr    $0x24,%rbx
+  86:	81 e3 f8 0f 00 00    	and    $0xff8,%ebx
+  8c:	e8 00 00 00 00       	callq  91 <pml4e_paddr+0x31>
+  91:	4c 09 e3             	or     %r12,%rbx
+  94:	4c 89 e6             	mov    %r12,%rsi
+  97:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+  9e:	31 c0                	xor    %eax,%eax
+  a0:	e8 00 00 00 00       	callq  a5 <pml4e_paddr+0x45>
+  a5:	48 89 de             	mov    %rbx,%rsi
+  a8:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+  af:	31 c0                	xor    %eax,%eax
+  b1:	e8 00 00 00 00       	callq  b6 <pml4e_paddr+0x56>
+  b6:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+  bd:	31 c0                	xor    %eax,%eax
+  bf:	e8 00 00 00 00       	callq  c4 <pml4e_paddr+0x64>
+  c4:	48 89 d8             	mov    %rbx,%rax
+  c7:	5b                   	pop    %rbx
+  c8:	41 5c                	pop    %r12
+  ca:	5d                   	pop    %rbp
+  cb:	c3                   	retq   
+  cc:	0f 1f 40 00          	nopl   0x0(%rax)
+
+00000000000000d0 <pdpte_paddr>:
+  d0:	e8 00 00 00 00       	callq  d5 <pdpte_paddr+0x5>
+  d5:	55                   	push   %rbp
+  d6:	31 c0                	xor    %eax,%eax
+  d8:	48 89 e5             	mov    %rsp,%rbp
+  db:	53                   	push   %rbx
+  dc:	48 89 fb             	mov    %rdi,%rbx
+  df:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+  e6:	e8 00 00 00 00       	callq  eb <pdpte_paddr+0x1b>
+  eb:	48 8b 1b             	mov    (%rbx),%rbx
+  ee:	31 c0                	xor    %eax,%eax
+  f0:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+  f7:	48 89 de             	mov    %rbx,%rsi
+  fa:	e8 00 00 00 00       	callq  ff <pdpte_paddr+0x2f>
+  ff:	83 e3 01             	and    $0x1,%ebx
+ 102:	74 0a                	je     10e <pdpte_paddr+0x3e>
+ 104:	5b                   	pop    %rbx
+ 105:	48 c7 c0 ff ff ff ff 	mov    $0xffffffffffffffff,%rax
+ 10c:	5d                   	pop    %rbp
+ 10d:	c3                   	retq   
+ 10e:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+ 115:	31 c0                	xor    %eax,%eax
+ 117:	e8 00 00 00 00       	callq  11c <pdpte_paddr+0x4c>
+ 11c:	eb e6                	jmp    104 <pdpte_paddr+0x34>
+ 11e:	66 90                	xchg   %ax,%ax
+
+0000000000000120 <paddr>:
+ 120:	e8 00 00 00 00       	callq  125 <paddr+0x5>
+ 125:	55                   	push   %rbp
+ 126:	31 c0                	xor    %eax,%eax
+ 128:	48 89 e5             	mov    %rsp,%rbp
+ 12b:	41 54                	push   %r12
+ 12d:	49 89 f4             	mov    %rsi,%r12
+ 130:	53                   	push   %rbx
+ 131:	48 89 fb             	mov    %rdi,%rbx
+ 134:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+ 13b:	e8 00 00 00 00       	callq  140 <paddr+0x20>
+ 140:	48 8b 1b             	mov    (%rbx),%rbx
+ 143:	31 c0                	xor    %eax,%eax
+ 145:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+ 14c:	48 89 de             	mov    %rbx,%rsi
+ 14f:	e8 00 00 00 00       	callq  154 <paddr+0x34>
+ 154:	48 89 d8             	mov    %rbx,%rax
+ 157:	25 81 00 00 00       	and    $0x81,%eax
+ 15c:	48 3d 81 00 00 00    	cmp    $0x81,%rax
+ 162:	74 1a                	je     17e <paddr+0x5e>
+ 164:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+ 16b:	31 c0                	xor    %eax,%eax
+ 16d:	e8 00 00 00 00       	callq  172 <paddr+0x52>
+ 172:	48 c7 c0 ff ff ff ff 	mov    $0xffffffffffffffff,%rax
+ 179:	5b                   	pop    %rbx
+ 17a:	41 5c                	pop    %r12
+ 17c:	5d                   	pop    %rbp
+ 17d:	c3                   	retq   
+ 17e:	48 b8 00 00 00 c0 ff 	movabs $0xfffffc0000000,%rax
+ 185:	ff 0f 00 
+ 188:	41 81 e4 ff ff ff 3f 	and    $0x3fffffff,%r12d
+ 18f:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+ 196:	48 21 c3             	and    %rax,%rbx
+ 199:	31 c0                	xor    %eax,%eax
+ 19b:	4c 09 e3             	or     %r12,%rbx
+ 19e:	48 89 de             	mov    %rbx,%rsi
+ 1a1:	e8 00 00 00 00       	callq  1a6 <paddr+0x86>
+ 1a6:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+ 1ad:	31 c0                	xor    %eax,%eax
+ 1af:	e8 00 00 00 00       	callq  1b4 <paddr+0x94>
+ 1b4:	48 89 d8             	mov    %rbx,%rax
+ 1b7:	eb c0                	jmp    179 <paddr+0x59>
+
+Disassembly of section .init.text:
+
+0000000000000000 <init_module>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	53                   	push   %rbx
+   5:	48 81 ec 08 00 00 40 	sub    $0x40000008,%rsp
+   c:	48 c7 85 f8 ff ff bf 	movq   $0x2a,-0x40000008(%rbp)
+  13:	2a 00 00 00 
+  17:	48 c7 85 00 00 00 c0 	movq   $0x3,-0x40000000(%rbp)
+  1e:	03 00 00 00 
+  22:	0f 20 d8             	mov    %cr3,%rax
+  25:	48 89 85 f0 ff ff bf 	mov    %rax,-0x40000010(%rbp)
+  2c:	48 8d 9d f8 ff ff bf 	lea    -0x40000008(%rbp),%rbx
+  33:	48 8b bd f0 ff ff bf 	mov    -0x40000010(%rbp),%rdi
+  3a:	48 89 de             	mov    %rbx,%rsi
+  3d:	e8 00 00 00 00       	callq  42 <init_module+0x42>
+  42:	48 89 de             	mov    %rbx,%rsi
+  45:	48 89 c7             	mov    %rax,%rdi
+  48:	e8 00 00 00 00       	callq  4d <init_module+0x4d>
+  4d:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+  51:	75 05                	jne    58 <init_module+0x58>
+  53:	83 c8 ff             	or     $0xffffffff,%eax
+  56:	eb 1a                	jmp    72 <init_module+0x72>
+  58:	48 89 de             	mov    %rbx,%rsi
+  5b:	48 89 c7             	mov    %rax,%rdi
+  5e:	e8 00 00 00 00       	callq  63 <init_module+0x63>
+  63:	48 83 f8 ff          	cmp    $0xffffffffffffffff,%rax
+  67:	74 ea                	je     53 <init_module+0x53>
+  69:	48 39 c3             	cmp    %rax,%rbx
+  6c:	0f 94 c0             	sete   %al
+  6f:	0f b6 c0             	movzbl %al,%eax
+  72:	48 81 c4 08 00 00 40 	add    $0x40000008,%rsp
+  79:	5b                   	pop    %rbx
+  7a:	5d                   	pop    %rbp
+  7b:	c3                   	retq   
+
+Disassembly of section .exit.text:
+
+0000000000000000 <cleanup_module>:
+   0:	55                   	push   %rbp
+   1:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+   8:	31 c0                	xor    %eax,%eax
+   a:	48 89 e5             	mov    %rsp,%rbp
+   d:	e8 00 00 00 00       	callq  12 <cleanup_module+0x12>
+  12:	5d                   	pop    %rbp
+  13:	c3                   	retq   
